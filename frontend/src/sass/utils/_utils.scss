@@ -1,0 +1,65 @@
+.card{
+     width: 500px;
+     padding: 15px 20px;
+     background-color: #914ae2d4;
+     box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.3);
+     border-radius: 40px;
+ }
+ .form-group{
+     margin: 20px 10px;
+     display: flex;
+     flex-direction: column;
+ }
+ .form-control{
+     padding: 12px;
+     border: none;
+     outline: none;
+     background-color: #0a0e1585;
+     &::placeholder{
+         color: #fff;
+         font-weight: 400;
+     }
+     border-radius: 15px;
+    //  font-family: cursive;
+ }
+ label{
+     margin-bottom: 5px;
+     color: #fff;
+     font-weight: 500;
+ }
+ .btn{
+    font-size: 20px;
+     border-radius: 15px;
+     outline: none;
+     color: #fff;
+     text-transform: uppercase;
+     padding: 16px;
+     text-align: center;
+     background-color: #101a23eb;
+     border: none;
+     cursor: pointer;
+ }
+ 
+ .heading{
+    color: #FFF8E7; /* Text color for the heading */
+    text-align: center; /* Center the heading text */
+    margin: 10px; /* Remove default margin for the heading */
+    font-size: 28px; /* Increase font size as desired */
+    font-weight: bold; /* Increase font weight as desired */
+ }
+
+ .btn_login{
+    text-align: center; /* Center the heading text */
+    margin-top: 25px; /* Remove default margin for the heading */
+    font-size: 15px; /* Increase font size as desired */
+    font-weight: 500;/* Increase font weight as desired */
+    outline: none;
+    color: #fff;
+    text-transform: uppercase;
+    padding: 12px;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    // width: 100px;
+    // justify-content: center;
+ }
