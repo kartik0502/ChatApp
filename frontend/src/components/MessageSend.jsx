@@ -1,7 +1,10 @@
 import React from 'react'
 import { FaFileImage, FaGift, FaPaperPlane, FaPlusCircle } from "react-icons/fa";
 
-export const MessageSend = () => {
+export const MessageSend = (props) => {
+
+    const {inputHandler, newMessage, sendMessage} = props;
+
   return (
     <div className='message-send-section'>
         <div className="file hover-attachment">
@@ -26,10 +29,10 @@ export const MessageSend = () => {
         </div>
 
         <div className="message-type">
-            <input type="text" name='message' id='message' placeholder='Type a message' className='form-control' />
+            <input type="text" onChange={inputHandler} name='message' id='message' placeholder='Type a message' className='form-control' value={newMessage} />
         </div>
 
-        <div className="file hover-gift">
+        <div onClick={sendMessage} className="file hover-gift">
             <label htmlFor="emoji"> <FaPaperPlane /></label>
         </div>
 
