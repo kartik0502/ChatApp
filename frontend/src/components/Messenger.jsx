@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { FaRegEdit, FaEllipsisH, FaSearch } from "react-icons/fa";
 import { ActiveFriend } from './ActiveFriend';
 import { Friends } from './Friends';
 import { RightSide } from './RightSide';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFriends } from '../store/actions/messengerAction';
+import { getFriends, getMessage, messageSend } from '../store/actions/messengerAction';
 
 export const Messenger = () => {
+
+    const scrollRef = useRef();
     const [currfriend, setCurrentFriend] = useState('')
     const [newMessage, setNewMessage] = useState('')
 
@@ -16,17 +18,30 @@ export const Messenger = () => {
 
     const sendMessage = (e) => {
         e.preventDefault();
-        console.log(newMessage)
+        const data = {
+            sender: myInfo.id,
+            receiver: currfriend._id,
+            message: newMessage
+        }
+        dispatch(messageSend(data))
     }
 
     const dispatch = useDispatch();
-    const { friends } = useSelector(state => state.messenger)
+    const { friends, messages } = useSelector(state => state.messenger)
     const { myInfo } = useSelector(state => state.auth)
-    
+    // console.log(myInfo)
 
     useEffect(() => {
         dispatch(getFriends())
-    }, [])
+    }, [currfriend])
+
+    useEffect(() => {
+        dispatch(getMessage(currfriend._id))
+    }, [currfriend])
+
+    useEffect(() => {
+        scrollRef.current?.scrollIntoView({behavior: 'smooth'})
+    }, [messages])
 
   return (
     <div className='messenger'>
@@ -67,7 +82,8 @@ export const Messenger = () => {
                         {
                             friends.map((fr) => 
                             <div onClick={() => setCurrentFriend(fr)} 
-                            className="hover-friend"> 
+                            className={currfriend._id === fr._id ? 
+                            'hover-friend active' : 'hover-friend'}> 
                             <Friends friends={fr} /> 
                             </div> )
                         }
@@ -77,7 +93,7 @@ export const Messenger = () => {
             {
                 currfriend ? 
                 <RightSide 
-                currfriend={currfriend} inputHandler={inputHandler} newMessage={newMessage}
+                currfriend={currfriend} inputHandler={inputHandler} newMessage={newMessage} message={messages} scrollRef={scrollRef}
                 sendMessage={sendMessage} /> : ''
             }
         </div>
