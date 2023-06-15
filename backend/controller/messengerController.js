@@ -1,5 +1,7 @@
 const User = require('../models/authModel');
 const messageModel = require('../models/messageModel');
+const formidable = require('formidable');
+const fs = require('fs');
 
 module.exports.getFriends = async (req, res) => {
     const myId = req.myId;
@@ -61,4 +63,46 @@ module.exports.messageGet = async (req, res) => {
             }
         });
     }
+}
+
+module.exports.sendImage = async (req, res) => {
+    const form = formidable();
+    form.parse(req, async (err, fields, files) => {
+        const { sender, receiver, imageName } = fields;
+        const { image } = files;
+
+        const newPath = `${__dirname}/../../frontend/public/image/${imageName}`;
+        files.image.originalFilename = imageName;
+
+        try {
+            fs.copyFile(files.image.filepath, newPath, async (err) => {
+                if(err){
+                    res.status(500).json({
+                        error : {
+                            errorMessage : 'Image upload failed!'
+                        }
+                    });
+                }
+                else{
+                    const insertMessage = await messageModel.create({
+                        senderId : sender,
+                        receiverId : receiver,
+                        message : {
+                            text : '',
+                            image : files.image.originalFilename,
+                        }
+                    });
+                    res.status(200).json({success : true, message : insertMessage});
+                }
+            });
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).json({
+                error : {
+                    errorMessage : 'Server error!'
+                }
+            });
+        }
+    })
 }

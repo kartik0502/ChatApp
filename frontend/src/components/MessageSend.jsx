@@ -3,7 +3,7 @@ import { FaFileImage, FaGift, FaPaperPlane, FaPlusCircle } from "react-icons/fa"
 
 export const MessageSend = (props) => {
 
-    const {inputHandler, newMessage, sendMessage} = props;
+    const {inputHandler, newMessage, sendMessage, imageSend} = props;
 
   return (
     <div className='message-send-section'>
@@ -18,13 +18,14 @@ export const MessageSend = (props) => {
             <div className="add-image">
                 Add-image
             </div>
-            <label htmlFor="image"> <FaFileImage /></label>
+            <input onChange={imageSend} type="file" name="image" id="pic" className='form-control'/>
+            <label htmlFor="pic"> <FaFileImage /></label>
         </div>
 
         <div className="file hover-gift">
             <div className="add-gift">
                 Add-gift
-            </div>
+            </div> 
             <label htmlFor="gift"> <FaGift /></label>
         </div>
 

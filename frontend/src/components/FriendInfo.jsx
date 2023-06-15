@@ -12,9 +12,6 @@ export const FriendInfo = (props) => {
             <div className="image">
                 <img src={`./image/${currfriend.image}`} alt="profile" />
             </div>
-            <div className="active-user">
-                Active
-            </div>
             <div className="name">
                 {currfriend.username}
             </div>

@@ -4,13 +4,18 @@ import { ActiveFriend } from './ActiveFriend';
 import { Friends } from './Friends';
 import { RightSide } from './RightSide';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFriends, getMessage, messageSend } from '../store/actions/messengerAction';
+import { getFriends, getMessage, messageSend, imageSendMsg } from '../store/actions/messengerAction';
+import { io } from 'socket.io-client';
 
 export const Messenger = () => {
 
     const scrollRef = useRef();
+    const socket = useRef();
+
     const [currfriend, setCurrentFriend] = useState('')
     const [newMessage, setNewMessage] = useState('')
+    const [active, setActive] = useState([])
+    const [socketMsg, setSocketMsg] = useState('')
 
     const inputHandler = (e) => {
         setNewMessage(e.target.value)
@@ -23,13 +28,19 @@ export const Messenger = () => {
             receiver: currfriend._id,
             message: newMessage
         }
+
+        socket.current.emit('sendMessage', {
+            sender: myInfo.id,
+            receiver: currfriend._id,
+            message: newMessage,
+            time: Date.now()
+        })
         dispatch(messageSend(data))
     }
 
     const dispatch = useDispatch();
     const { friends, messages } = useSelector(state => state.messenger)
     const { myInfo } = useSelector(state => state.auth)
-    // console.log(myInfo)
 
     useEffect(() => {
         dispatch(getFriends())
@@ -42,6 +53,56 @@ export const Messenger = () => {
     useEffect(() => {
         scrollRef.current?.scrollIntoView({behavior: 'smooth'})
     }, [messages])
+
+    useEffect(() => {
+        socket.current = io('ws://localhost:8000');
+        socket.current.on('getMessage', data => {
+            setSocketMsg(data)
+        })
+        console.log(socketMsg)
+    }, [socketMsg])
+
+    useEffect(() => {
+        if(socketMsg && currfriend._id === socketMsg.sender && myInfo.id === socketMsg.receiver){
+            dispatch({
+                type: 'SOCKET_MESSAGE',
+                payload: {
+                    message: socketMsg
+                }
+            })
+        }
+    }, [socketMsg])
+
+    useEffect(() => {
+        socket.current.emit('addUser', myInfo.id, myInfo)
+    },[])
+
+    useEffect(() => {
+        socket.current.on('getUser', users => {
+            const filterUser = users.filter(user => user.userId !== myInfo.id && user.userInfo.length !== 0)
+            setActive(filterUser)
+            console.log(filterUser)
+        })
+    },[])
+
+    const imageSend = (e) => {
+        e.preventDefault();
+
+        if(e.target.files.length !== 0){
+            const imageName = e.target.files[0].name;
+            const newImageName = new Date().getTime() + '_' + imageName;
+            
+            const formData = new FormData();
+
+            formData.append('sender',myInfo.id);
+            formData.append('receiver',currfriend._id);
+            formData.append('image',e.target.files[0]);
+            formData.append('imageName',newImageName);
+
+            dispatch(imageSendMsg(formData))
+        }
+        console.log(e.target.files[0])
+    }
 
   return (
     <div className='messenger'>
@@ -75,7 +136,12 @@ export const Messenger = () => {
                     </div>
 
                     <div className="active-friends">
-                        <ActiveFriend />
+                        {
+                            active && active.map((fr) =>
+                            <div className="active-friend">
+                                <ActiveFriend friends={fr} />
+                            </div>)
+                        }
                     </div>
 
                     <div className="friends">
@@ -93,7 +159,7 @@ export const Messenger = () => {
             {
                 currfriend ? 
                 <RightSide 
-                currfriend={currfriend} inputHandler={inputHandler} newMessage={newMessage} message={messages} scrollRef={scrollRef}
+                currfriend={currfriend} inputHandler={inputHandler} newMessage={newMessage} message={messages} scrollRef={scrollRef} imageSend={imageSend} active={active}
                 sendMessage={sendMessage} /> : ''
             }
         </div>
